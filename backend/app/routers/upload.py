@@ -70,10 +70,11 @@ async def upload_document(
 
     # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower().replace(".", "")
-    if file_ext not in settings.ALLOWED_EXTENSIONS:
+    allowed = settings.get_allowed_extensions()
+    if file_ext not in allowed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File type not allowed. Allowed: {', '.join(settings.ALLOWED_EXTENSIONS)}"
+            detail=f"File type not allowed. Allowed: {', '.join(allowed)}"
         )
 
     # Validate file size
@@ -107,7 +108,7 @@ async def upload_document(
         file_size=file_size,
         file_type=file_ext,
         file_path=file_path,
-        status=DocumentStatus.UPLOADED,
+        status=DocumentStatus.UPLOADED.value,
         delete_at=datetime.utcnow() + timedelta(days=30)  # GDPR: delete after 30 days
     )
 
@@ -120,7 +121,7 @@ async def upload_document(
         extracted_text = extract_text(file_path, file_ext)
 
         if not extracted_text or len(extracted_text) < settings.MIN_TEXT_LENGTH:
-            document.status = DocumentStatus.FAILED
+            document.status = DocumentStatus.FAILED.value
             document.error_message = "Could not extract enough text from document"
             db.commit()
             raise HTTPException(
@@ -131,7 +132,7 @@ async def upload_document(
         # Update document with extracted text
         document.extracted_text = extracted_text
         document.word_count = len(extracted_text.split())
-        document.status = DocumentStatus.PROCESSING
+        document.status = DocumentStatus.PROCESSING.value
         document.processed_at = datetime.utcnow()
 
         # Decrement user analyses
@@ -145,12 +146,12 @@ async def upload_document(
             "document_id": str(document.id),
             "filename": document.original_filename,
             "file_size": document.file_size,
-            "status": document.status.value,
+            "status": document.status,
             "message": "Document uploaded and processing started"
         }
 
     except Exception as e:
-        document.status = DocumentStatus.FAILED
+        document.status = DocumentStatus.FAILED.value
         document.error_message = str(e)
         db.commit()
         raise HTTPException(
@@ -190,7 +191,7 @@ def get_document(
     return {
         "id": str(document.id),
         "filename": document.original_filename,
-        "status": document.status.value,
+        "status": document.status,
         "word_count": document.word_count,
         "processed_at": document.processed_at,
         "error_message": document.error_message

@@ -36,14 +36,26 @@ class ActivateCodeRequest(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str
-    full_name: Optional[str]
+    full_name: Optional[str] = None
     plan_type: str
     analyses_remaining: int
     analyses_limit: int
-    subscription_expires_at: Optional[datetime]
+    subscription_expires_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+    @classmethod
+    def from_user(cls, user):
+        return cls(
+            id=str(user.id),
+            email=user.email,
+            full_name=user.full_name,
+            plan_type=user.plan_type,
+            analyses_remaining=user.analyses_remaining,
+            analyses_limit=user.analyses_limit,
+            subscription_expires_at=user.subscription_expires_at
+        )
 
 
 def hash_password(password: str) -> str:
@@ -74,7 +86,7 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
         email=user_data.email,
         hashed_password=hash_password(user_data.password),
         full_name=user_data.full_name,
-        plan_type=PlanType.TRIAL,
+        plan_type=PlanType.TRIAL.value,
         analyses_remaining=trial_plan["analyses_limit"],
         analyses_limit=trial_plan["analyses_limit"],
         subscription_expires_at=datetime.utcnow() + timedelta(days=trial_plan["validity_days"])
@@ -84,7 +96,7 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    return new_user
+    return UserResponse.from_user(new_user)
 
 
 @router.post("/login", response_model=UserResponse)
@@ -109,7 +121,7 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
     user.last_login = datetime.utcnow()
     db.commit()
 
-    return user
+    return UserResponse.from_user(user)
 
 
 @router.post("/activate", response_model=UserResponse)
@@ -140,14 +152,14 @@ def activate_code(
         )
 
     # Validate code status
-    if code.status != CodeStatus.ACTIVE:
+    if code.status != CodeStatus.ACTIVE.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Code is {code.status.value}"
+            detail=f"Code is {code.status}"
         )
 
     # Activate code
-    code.status = CodeStatus.USED
+    code.status = CodeStatus.USED.value
     code.user_id = user.id
     code.activated_at = datetime.utcnow()
     code.expires_at = datetime.utcnow() + timedelta(days=code.validity_days)
@@ -161,7 +173,7 @@ def activate_code(
     db.commit()
     db.refresh(user)
 
-    return user
+    return UserResponse.from_user(user)
 
 
 @router.get("/me", response_model=UserResponse)
@@ -175,7 +187,7 @@ def get_current_user(email: EmailStr, db: Session = Depends(get_db)):
             detail="User not found"
         )
 
-    return user
+    return UserResponse.from_user(user)
 
 
 @router.get("/plans")

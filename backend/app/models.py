@@ -46,6 +46,12 @@ class DocumentStatus(str, enum.Enum):
     FAILED = "failed"
 
 
+# Use existing PostgreSQL enum types (created by init.sql) - use String to avoid SQLAlchemy enum conflicts
+PlanTypeColumn = String(20)
+CodeStatusColumn = String(20)
+DocumentStatusColumn = String(20)
+
+
 class User(Base):
     """User model"""
     __tablename__ = "users"
@@ -56,7 +62,7 @@ class User(Base):
     full_name = Column(String(255))
 
     # Subscription info
-    plan_type = Column(Enum(PlanType), default=PlanType.TRIAL)
+    plan_type = Column(PlanTypeColumn, default="trial")
     analyses_remaining = Column(Integer, default=3)
     analyses_limit = Column(Integer, default=3)
     subscription_expires_at = Column(DateTime, nullable=True)
@@ -84,12 +90,12 @@ class ActivationCode(Base):
     code = Column(String(20), unique=True, index=True, nullable=False)
 
     # Plan details
-    plan_type = Column(Enum(PlanType), nullable=False)
+    plan_type = Column(PlanTypeColumn, nullable=False)
     analyses_limit = Column(Integer, nullable=False)
     validity_days = Column(Integer, nullable=False)
 
     # Status
-    status = Column(Enum(CodeStatus), default=CodeStatus.ACTIVE, index=True)
+    status = Column(CodeStatusColumn, default=CodeStatus.ACTIVE, index=True)
 
     # Usage tracking
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
@@ -120,7 +126,7 @@ class Document(Base):
     file_path = Column(String(500))  # Storage path
 
     # Processing
-    status = Column(Enum(DocumentStatus), default=DocumentStatus.UPLOADED, index=True)
+    status = Column(DocumentStatusColumn, default=DocumentStatus.UPLOADED, index=True)
     extracted_text = Column(Text)
     word_count = Column(Integer)
 
@@ -196,9 +202,9 @@ class AuditLog(Base):
     status = Column(String(20))  # success, failure
     error_message = Column(Text, nullable=True)
 
-    # Metadata
+    # Extra data
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    metadata = Column(JSON, default={})
+    extra_data = Column("metadata", JSON, default={})
 
 
 # Indexes for performance

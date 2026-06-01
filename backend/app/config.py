@@ -30,11 +30,8 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
-    @validator("CORS_ORIGINS", pre=True)
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    def get_cors_origins(self) -> list:
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
 
     # Contact & Support
     SUPPORT_EMAIL: str = "checkone076@gmail.com"
@@ -54,8 +51,11 @@ class Settings(BaseSettings):
 
     # File Upload
     MAX_UPLOAD_SIZE_MB: int = 50
-    ALLOWED_EXTENSIONS: List[str] = ["pdf", "docx", "txt"]
+    ALLOWED_EXTENSIONS: str = "pdf,docx,txt"
     UPLOAD_DIR: str = "/app/uploads"
+
+    def get_allowed_extensions(self) -> list:
+        return [ext.strip() for ext in self.ALLOWED_EXTENSIONS.split(",")]
 
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 10
@@ -76,8 +76,9 @@ class Settings(BaseSettings):
     CACHE_TTL_LONG: int = 86400  # 24 hours
 
     class Config:
-        env_file = ".env"
+        env_file = "/home/serveur/plagiat-tracker/.env"
         case_sensitive = True
+        extra = "ignore"
 
 
 # Create global settings instance

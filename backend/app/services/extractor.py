@@ -2,7 +2,7 @@
 Text Extraction Service
 Extracts text from PDF, DOCX, and TXT files
 """
-import PyMuPDF  # pymupdf
+import fitz  # PyMuPDF
 import docx
 from typing import Optional
 
@@ -38,7 +38,7 @@ def extract_pdf(file_path: str) -> str:
 
     text = []
 
-    with PyMuPDF.open(file_path) as doc:
+    with fitz.open(file_path) as doc:
         for page in doc:
             text.append(page.get_text())
 

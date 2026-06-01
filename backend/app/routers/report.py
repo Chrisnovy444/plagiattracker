@@ -85,11 +85,11 @@ async def analyze_document(document_id: str, db: Session):
         )
 
         db.add(report)
-        document.status = DocumentStatus.COMPLETED
+        document.status = DocumentStatus.COMPLETED.value
         db.commit()
 
     except Exception as e:
-        document.status = DocumentStatus.FAILED
+        document.status = DocumentStatus.FAILED.value
         document.error_message = str(e)
         db.commit()
 
@@ -123,10 +123,10 @@ async def analyze(
             detail="Document not found"
         )
 
-    if document.status != DocumentStatus.PROCESSING:
+    if document.status != DocumentStatus.PROCESSING.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Document is {document.status.value}"
+            detail=f"Document is {document.status}"
         )
 
     # Start background analysis
@@ -172,8 +172,8 @@ def get_report(
 
     if not report:
         return {
-            "status": document.status.value,
-            "message": "Report not ready yet" if document.status == DocumentStatus.PROCESSING else "Report not found"
+            "status": document.status,
+            "message": "Report not ready yet" if document.status == DocumentStatus.PROCESSING.value else "Report not found"
         }
 
     return {

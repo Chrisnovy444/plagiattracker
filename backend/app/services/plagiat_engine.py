@@ -3,18 +3,19 @@ Plagiarism Detection Engine
 Detects copied content using MinHash, Sentence-BERT and academic APIs
 """
 from datasketch import MinHash, MinHashLSH
-from sentence_transformers import SentenceTransformer, util
 from typing import List, Dict
 import hashlib
-import torch
 
-# Load Sentence-BERT model once at module level
+SBERT_LOADED = False
+sbert_model = None
+
 try:
+    from sentence_transformers import SentenceTransformer, util
+    import torch
     sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
     SBERT_LOADED = True
 except Exception as e:
-    print(f"Warning: Could not load Sentence-BERT model: {e}")
-    SBERT_LOADED = False
+    print(f"Warning: Sentence-BERT unavailable (MinHash-only mode): {e}")
 
 
 def calculate_similarity(text1: str, text2: str) -> float:
