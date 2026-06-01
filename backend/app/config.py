@@ -76,7 +76,7 @@ class Settings(BaseSettings):
     CACHE_TTL_LONG: int = 86400  # 24 hours
 
     class Config:
-        env_file = "/home/serveur/plagiat-tracker/.env"
+        env_file = ".env"
         case_sensitive = True
         extra = "ignore"
 
