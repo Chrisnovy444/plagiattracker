@@ -1,0 +1,108 @@
+# ============================================
+# PLAGIATTRACKER - Backend Requirements
+# ============================================
+
+# ============================================
+# Web Framework
+# ============================================
+fastapi[all]==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# ============================================
+# Database
+# ============================================
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# ============================================
+# Redis & Caching
+# ============================================
+redis==5.0.1
+hiredis==2.3.2
+
+# ============================================
+# Document Processing
+# ============================================
+PyMuPDF==1.23.25              # PDF extraction
+python-docx==1.1.0            # DOCX extraction
+python-magic==0.4.27          # File type detection
+
+# ============================================
+# NLP & AI Detection
+# ============================================
+transformers==4.37.2          # Hugging Face models
+torch==2.2.0                  # PyTorch (CPU version)
+sentence-transformers==2.3.1  # Sentence-BERT embeddings
+tokenizers==0.15.1
+
+# ============================================
+# Plagiarism Detection
+# ============================================
+datasketch==1.6.4             # MinHash fingerprinting
+scikit-learn==1.4.0           # ML utilities
+numpy==1.26.3
+scipy==1.12.0
+
+# ============================================
+# Academic APIs & Web Scraping
+# ============================================
+httpx==0.26.0                 # Async HTTP client
+beautifulsoup4==4.12.3        # Web scraping
+lxml==5.1.0                   # HTML parsing
+aiohttp==3.9.3                # Async HTTP
+
+# ============================================
+# PDF Generation (Reports)
+# ============================================
+reportlab==4.0.9              # PDF generation
+Pillow==10.2.0                # Image processing
+
+# ============================================
+# API Clients
+# ============================================
+openai==1.10.0                # For Groq (OpenAI-compatible)
+anthropic==0.25.0             # Claude API (optional)
+
+# ============================================
+# Security & Auth
+# ============================================
+python-jose[cryptography]==3.3.0  # JWT tokens
+passlib[bcrypt]==1.7.4             # Password hashing
+python-multipart==0.0.6            # File upload support
+
+# ============================================
+# Background Tasks
+# ============================================
+celery==5.3.6                 # Task queue (optional)
+flower==2.0.1                 # Celery monitoring (optional)
+
+# ============================================
+# Monitoring & Logging
+# ============================================
+loguru==0.7.2                 # Better logging
+python-dotenv==1.0.0          # Environment variables
+
+# ============================================
+# Testing
+# ============================================
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+httpx==0.26.0                 # For testing async endpoints
+
+# ============================================
+# Development
+# ============================================
+black==24.1.1                 # Code formatting
+flake8==7.0.0                 # Linting
+mypy==1.8.0                   # Type checking
+isort==5.13.2                 # Import sorting
+
+# ============================================
+# Utilities
+# ============================================
+python-dateutil==2.8.2
+tqdm==4.66.1                  # Progress bars
