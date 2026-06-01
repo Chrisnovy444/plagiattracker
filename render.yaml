@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: plagiattracker-backend
+    runtime: python
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements-light.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: plagiattracker-db
+          property: connectionString
+      - key: REDIS_URL
+        value: ""
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: CORS_ORIGINS
+        value: https://frontend-omega-seven-97.vercel.app
+      - key: SUPPORT_EMAIL
+        value: checkone076@gmail.com
+      - key: PARTNER_PHONE
+        value: "+237690895735"
+      - key: PYTHON_VERSION
+        value: "3.11"
+    healthCheckPath: /health
+
+databases:
+  - name: plagiattracker-db
+    plan: free
+    region: frankfurt
+    databaseName: plagiattracker
+    user: plagiat_user

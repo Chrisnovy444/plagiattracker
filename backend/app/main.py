@@ -25,20 +25,21 @@ async def lifespan(app: FastAPI):
     init_db()
     logger.info("✅ Database initialized")
 
-    # Download/verify Hugging Face models
-    logger.info("📦 Loading AI models...")
-    try:
-        from transformers import GPT2LMHeadModel, GPT2Tokenizer
-        from sentence_transformers import SentenceTransformer
-
-        # These will load from cache if already downloaded
-        GPT2LMHeadModel.from_pretrained('gpt2')
-        GPT2Tokenizer.from_pretrained('gpt2')
-        SentenceTransformer('all-MiniLM-L6-v2')
-        logger.info("✅ AI models loaded successfully")
-    except Exception as e:
-        logger.warning(f"⚠️  AI models not loaded: {e}")
-        logger.warning("   Models will be downloaded on first use")
+    # Load AI models only if explicitly enabled (heavy, needs >1GB RAM)
+    import os
+    if os.getenv("LOAD_AI_MODELS", "false").lower() == "true":
+        logger.info("📦 Loading AI models...")
+        try:
+            from transformers import GPT2LMHeadModel, GPT2Tokenizer
+            from sentence_transformers import SentenceTransformer
+            GPT2LMHeadModel.from_pretrained('gpt2')
+            GPT2Tokenizer.from_pretrained('gpt2')
+            SentenceTransformer('all-MiniLM-L6-v2')
+            logger.info("✅ AI models loaded successfully")
+        except Exception as e:
+            logger.warning(f"⚠️  AI models not loaded: {e}")
+    else:
+        logger.info("⏭️  AI models skipped (LOAD_AI_MODELS != true)")
 
     logger.info(f"📧 Support email: {settings.SUPPORT_EMAIL}")
     logger.info(f"📱 Partner phone: {settings.PARTNER_PHONE}")
@@ -55,8 +56,8 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="Détecteur de plagiat + contenu IA + correction automatique",
-    docs_url="/docs" if settings.DEBUG else None,
-    redoc_url="/redoc" if settings.DEBUG else None,
+    docs_url="/docs",
+    redoc_url="/redoc",
     lifespan=lifespan,
 )
 

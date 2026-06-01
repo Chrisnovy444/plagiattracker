@@ -17,15 +17,15 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = "default-change-in-production-min32chars!!"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = ""
 
-    # Redis
-    REDIS_URL: str
+    # Redis (optional in production without Redis)
+    REDIS_URL: str = ""
 
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
